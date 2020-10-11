@@ -21,6 +21,7 @@ init python:
             """
             self.player_name = "Player Name"     
             self.relationships = {}
+            self.winner = None
 
         def addRelationship(self, character):
             ''' 
@@ -33,6 +34,7 @@ init python:
             Increment Relationship
             '''
             self.relationships[character] += value
+            self.checkWinner()
         
         def getRelationship(self, character):
             '''
@@ -45,4 +47,13 @@ init python:
             Update one Relationship from the list
             '''
             self.relationships[character] = value
+            self.checkWinner()
+        
+        def checkWinner(self):
+            temp = 0
+            self.winner = None            
+            for key, value in self.relationships.items():                
+                if value >= temp:
+                    self.winner = key
+                temp = value
 
