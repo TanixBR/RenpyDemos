@@ -1,0 +1,5 @@
+name,type,default_value,image
+Knife,weapon,,knife.png
+Mirror,item,,mirror.png
+Key,item,red,key.png
+Sword,weapon,,sword.png

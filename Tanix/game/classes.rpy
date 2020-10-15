@@ -107,26 +107,6 @@ init python:
                 '''
                 return self.items
 
-    class base_item(base_class):
-        ''' Item Class that holds item caracteristics
-        '''
-        def __init__(self, name, type, default_value, image):
-            ''' Init items attribute
-            '''
-            self.name = None
-            self.type = None
-            self.default_value = None
-            self.image = None
-            self.max = 1
-            self.quantity = None
-            self.value = None
-
-        def getName():
-            return self.name
-
-        def getType():
-            return self.type
-
     class game_core(base_class):
         ''' Game Core class
         '''
@@ -135,12 +115,12 @@ init python:
             ''' Init game Core
             '''
             self.item_list = self.load_data("gamedata.save")            
-            self.items = []
+            self.items = {}
             self.initItems()
 
         def initItems(self):
             for i in self.getItems():
-                self.items.append(base_item(i["name"], i["type"], i["default_value"], i["image"]))
+                self.items[i["name"]]={"name":i["name"],"type":i["type"], "value":i["default_value"],"image":i["image"]}
 
         def getItems(self):
             return self.item_list["Inventory"]
@@ -150,6 +130,9 @@ init python:
             for i in self.getItems():
                 names.append(i["name"])
             return names
+
+        def getItemAttribute(self,iname,attribute):
+            return self.items[iname][attribute]
 
         def enc_data(self,inputData):
             return base64.b64encode(inputData)
@@ -165,5 +148,3 @@ init python:
         def save_data(self,content):
             with open(self.save_name, 'wb') as f:
                 f.write(self.enc_data(content))    
-
-
