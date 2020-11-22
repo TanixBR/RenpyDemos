@@ -4,6 +4,7 @@ init python:
     import os.path
     import base64
     import os
+    import requests
 
     class base_class(renpy.python.RevertableObject):
 
@@ -28,6 +29,7 @@ init python:
             self.items = []     
             self.relationships = {}
             self.winner = None
+            self.end_flag = 0
 
         def addRelationship(self, character):
             ''' 
@@ -63,49 +65,13 @@ init python:
                     self.winner = key
                 temp = value
 
-    class inventory(base_class):
-            ''' Iventory Class where inventory is defined
-            '''
+        def check_savefile(self, savefile):
+            return os.path.isfile("{}/{}".format(config.gamedir,savefile))
 
-            def __init__(self):
-                ''' Init Iventory
-                    set items attribute
-                '''
-                self.items = []
-
-            def addItem(self, item):
-                ''' Add one item to the list
-                '''
-                self.items.append(item)
-
-            def useItem(self, item):
-                ''' Pop one item from the list
-                
-                Return the item that it's pop
-                Return False if there is no item in the list
-                '''
-                if item in self.items:
-                    self.items.remove(item)
-                    return True
-                else:
-                    return False
-
-            def checkItems(self, item):
-                ''' Pop one item from the list
-                
-                Return the item that it's pop
-                Return False if there is no item in the list
-                '''
-                if item in self.items:            
-                    return True
-                else:
-                    return False
-
-            def listItems(self):
-                ''' 
-                Return All item from list
-                '''
-                return self.items
+        def create_file(self, savefile):
+            with open("{}/{}".format(config.gamedir,savefile), 'w') as fp: 
+                pass
+            return True
 
     class game_core(base_class):
         ''' Game Core class
@@ -117,6 +83,8 @@ init python:
             self.item_list = self.load_data("gamedata.save")            
             self.items = {}
             self.initItems()
+            #private
+            self.url = "http://localhost"
 
         def initItems(self):
             for i in self.getItems():
@@ -147,4 +115,17 @@ init python:
         
         def save_data(self,content):
             with open(self.save_name, 'wb') as f:
-                f.write(self.enc_data(content))    
+                f.write(self.enc_data(content))
+
+        def do_request(self, r_url, r_params, r_json):
+            return requests.post(r_url, params=r_params, json=r_json)        
+
+        def load_items(self):
+            items_url = "{}/gameservices/services/services.php".format(self.url)
+            items_input = {'action': 'get_items'}
+            self.response = self.do_request(items_url, items_input, None)
+            validate_data = self.response.json()             
+            if (validate_data["status"]=="OK"):                
+                return validate_data
+            else:
+                return False    
